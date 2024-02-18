@@ -26,14 +26,13 @@ public class MainWindow extends JFrame {
         updateJobButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // You can implement code to open a view for updating JobClass here
-                // For demonstration purposes, let's assume we want to update JobClass with ID = 1
-                Job jobToUpdate = DataAccess.getJobClassByID(1);
+                int jobClassID = Integer.parseInt(JOptionPane.showInputDialog("Enter Job Class ID to update:"));
+                Job jobToUpdate = DataAccess.getJobClassByID(jobClassID);
                 if (jobToUpdate != null) {
                     JobView jobView = new JobView(jobToUpdate);
                     jobView.setVisible(true);
                 } else {
-                    JOptionPane.showMessageDialog(null, "Job Class with ID = 1 not found.");
+                    JOptionPane.showMessageDialog(null, "Job Class with ID = " + jobClassID + " not found.");
                 }
             }
         });
@@ -49,14 +48,13 @@ public class MainWindow extends JFrame {
         updateEmployeeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // You can implement code to open a view for updating Employee here
-                // For demonstration purposes, let's assume we want to update Employee with ID = 1
-                Employee employeeToUpdate = DataAccess.getAllEmployees().stream().findFirst().orElse(null);
+                int employeeID = Integer.parseInt(JOptionPane.showInputDialog("Enter Employee ID to update:"));
+                Employee employeeToUpdate = DataAccess.getEmployeeByID(employeeID);
                 if (employeeToUpdate != null) {
                     EmployeeView employeeView = new EmployeeView(employeeToUpdate);
                     employeeView.setVisible(true);
                 } else {
-                    JOptionPane.showMessageDialog(null, "Employee with ID = 1 not found.");
+                    JOptionPane.showMessageDialog(null, "Employee with ID = " + employeeID + " not found.");
                 }
             }
         });
