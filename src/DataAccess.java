@@ -78,6 +78,26 @@ public class DataAccess {
         return employee;
     }
 
+    public static List<Job> getAllJobClasses() {
+        List<Job> jobList = new ArrayList<>();
+        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS)) {
+            String sql = "SELECT * FROM JobClass";
+            try (Statement statement = conn.createStatement();
+                 ResultSet resultSet = statement.executeQuery(sql)) {
+                while (resultSet.next()) {
+                    int jobClassID = resultSet.getInt("JobClassID");
+                    String jobTitle = resultSet.getString("JobClassName");
+                    double hourlyWage = resultSet.getDouble("HourlyRate");
+                    Job job = new Job(jobClassID, jobTitle, hourlyWage);
+                    jobList.add(job);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return jobList;
+    }
+
     public static List<Employee> getAllEmployees() {
         List<Employee> employees = new ArrayList<>();
         try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS)) {
@@ -131,6 +151,23 @@ public class DataAccess {
         } catch (SQLException e) {
             e.printStackTrace();
             System.out.println("Failed to update Employee.");
+        }
+    }
+
+    public static void deleteJobClass(int jobClassID) {
+        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS)) {
+            String sql = "DELETE FROM JobClass WHERE JobClassID = ?";
+            try (PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
+                preparedStatement.setInt(1, jobClassID);
+                int rowsAffected = preparedStatement.executeUpdate();
+                if (rowsAffected == 1) {
+                    System.out.println("Job Class deleted successfully.");
+                } else {
+                    System.out.println("Job Class not found or failed to delete.");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
