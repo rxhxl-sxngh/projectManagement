@@ -7,7 +7,7 @@ public class MainWindow extends JFrame {
 
     public MainWindow() {
         setTitle("Main Window");
-        setSize(400, 200);
+        setSize(1000, 500);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
         JButton addJobButton = new JButton("Add Job Class");
