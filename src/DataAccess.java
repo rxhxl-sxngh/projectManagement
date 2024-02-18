@@ -8,7 +8,7 @@ public class DataAccess {
 
     public static void addJobClass(Job job) {
         try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS)) {
-            String sql = "INSERT INTO JobClass (JobClassID, JobTitle, HourlyWage) VALUES (?, ?, ?)";
+            String sql = "INSERT INTO JobClass (JobClassID, JobClassName, HourlyRate) VALUES (?, ?, ?)";
             try (PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
                 preparedStatement.setInt(1, job.getJobClassID());
                 preparedStatement.setString(2, job.getJobTitle());
@@ -24,7 +24,7 @@ public class DataAccess {
 
     public static void addEmployee(Employee employee) {
         try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS)) {
-            String sql = "INSERT INTO Employee (EmployeeID, EmployeeName, JobClassID) VALUES (?, ?, ?)";
+            String sql = "INSERT INTO Employee (ID, Name, JobClassID) VALUES (?, ?, ?)";
             try (PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
                 preparedStatement.setInt(1, employee.getEmployeeID());
                 preparedStatement.setString(2, employee.getEmployeeName());
@@ -47,8 +47,8 @@ public class DataAccess {
                 try (ResultSet resultSet = preparedStatement.executeQuery()) {
                     if (resultSet.next()) {
                         job = new Job(resultSet.getInt("JobClassID"),
-                                resultSet.getString("JobTitle"),
-                                resultSet.getDouble("HourlyWage"));
+                                resultSet.getString("JobClassName"),
+                                resultSet.getDouble("HourlyRate"));
                     }
                 }
             }
@@ -58,6 +58,26 @@ public class DataAccess {
         return job;
     }
 
+    public static Employee getEmployeeByID(int employeeID) {
+        Employee employee = null;
+        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS)) {
+            String sql = "SELECT * FROM Employee WHERE ID = ?";
+            try (PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
+                preparedStatement.setInt(1, employeeID);
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    if (resultSet.next()) {
+                        employee = new Employee(resultSet.getInt("ID"),
+                                resultSet.getString("Name"),
+                                resultSet.getInt("JobClassID"));
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return employee;
+    }
+
     public static List<Employee> getAllEmployees() {
         List<Employee> employees = new ArrayList<>();
         try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS)) {
@@ -65,8 +85,8 @@ public class DataAccess {
             try (Statement statement = conn.createStatement()) {
                 try (ResultSet resultSet = statement.executeQuery(sql)) {
                     while (resultSet.next()) {
-                        Employee employee = new Employee(resultSet.getInt("EmployeeID"),
-                                resultSet.getString("EmployeeName"),
+                        Employee employee = new Employee(resultSet.getInt("ID"),
+                                resultSet.getString("Name"),
                                 resultSet.getInt("JobClassID"));
                         employees.add(employee);
                     }
@@ -78,9 +98,29 @@ public class DataAccess {
         return employees;
     }
 
+    public static void updateJobClass(Job job) {
+        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS)) {
+            String sql = "UPDATE JobClass SET JobClassName = ?, HourlyRate = ? WHERE JobClassID = ?";
+            try (PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
+                preparedStatement.setString(1, job.getJobTitle());
+                preparedStatement.setDouble(2, job.getHourlyWage());
+                preparedStatement.setInt(3, job.getJobClassID());
+                int rowsAffected = preparedStatement.executeUpdate();
+                if (rowsAffected == 1) {
+                    System.out.println("Job Class updated successfully.");
+                } else {
+                    System.out.println("Job Class not found or failed to update.");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("Failed to update Job Class.");
+        }
+    }
+
     public static void updateEmployee(Employee employee) {
         try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS)) {
-            String sql = "UPDATE Employee SET EmployeeName = ?, JobClassID = ? WHERE EmployeeID = ?";
+            String sql = "UPDATE Employee SET Name = ?, JobClassID = ? WHERE ID = ?";
             try (PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
                 preparedStatement.setString(1, employee.getEmployeeName());
                 preparedStatement.setInt(2, employee.getJobClassID());
@@ -96,7 +136,7 @@ public class DataAccess {
 
     public static void deleteEmployee(int employeeID) {
         try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS)) {
-            String sql = "DELETE FROM Employee WHERE EmployeeID = ?";
+            String sql = "DELETE FROM Employee WHERE ID = ?";
             try (PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
                 preparedStatement.setInt(1, employeeID);
                 preparedStatement.executeUpdate();
